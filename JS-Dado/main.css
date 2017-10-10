@@ -3,11 +3,8 @@
   height: 150px;
   margin: auto;
   margin-top: 20px;
-  background-color: yellow;
   padding: 20px 0 0 25px;
   box-sizing: border-box;
-  border-radius: 30px;
-  border: 2px solid black;
 }
 
 #botonlanzar, #showEst {
@@ -22,19 +19,17 @@
 }
 
 #dado {
-  width: 220px;
-  height: 50px;
+  width: 200px;
+  height: 200px;
   font-size: 30px;
   margin-top: 10px;
+  background-size: 100% 100%;
 }
 
 #estadistica {
   width: 300px;
   height: 80px;
   margin: auto;
-  background-color: yellow;
-  border-radius: 30px;
-  border: 2px solid black;
 }
 
 #showEst {
@@ -46,11 +41,12 @@
   height: 25px;
   width: 0;
   margin-left: 10px;
-  margin-top: 5px;
-  background-color: red;
+  margin-top: 0;
+  background-color: GreenYellow;
   text-align: center;
   padding-top: 5px;
   box-sizing: border-box;
+  vertical-align: top;
 }
 
 .num, .bar {
@@ -58,7 +54,35 @@
 }
 
 .num {
+  margin-top: 5px;
   margin-bottom: 3px;
+  background-size: 100% 100%;
+  width: 15px;
+  height: 15px;
+}
+
+#n1 {
+  background-image: url("dice1.png");
+}
+
+#n2 {
+  background-image: url("dice2.png");
+}
+
+#n3 {
+  background-image: url("dice3.png");
+}
+
+#n4 {
+  background-image: url("dice4.png");
+}
+
+#n5 {
+  background-image: url("dice5.png");
+}
+
+#n6 {
+  background-image: url("dice6.png");
 }
 
 #bars {
