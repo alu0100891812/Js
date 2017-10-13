@@ -7,9 +7,9 @@ body {
     overflow-x: hidden;
 }
 
-#piano {
-    width: 400px;
-    height: 150px;
+.piano {
+    width: 500px;
+    height: 250px;
     margin: auto;
     margin-top: -200px;
     position: relative;
@@ -17,6 +17,20 @@ body {
     padding: 50px;
     background: linear-gradient(to bottom, rgba(149,174,230,1) 0%, rgba(68,80,92,1) 20%, rgba(68,80,92,1) 100%);
     border-radius: 20px;
+    box-shadow: 15px 0px 30px gray;
+    box-sizing: border-box;
+}
+
+.shadow {
+    width: 500px;
+    background-color: rgba(42,50,59,1);
+    height: 35px;
+    margin-top: 225px;
+    margin-left: -250px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    border-radius: 0 0 20px 20px;
     box-shadow: 15px 15px 30px gray;
 }
 
@@ -24,6 +38,7 @@ body {
     display: inline-block;
     border: 1px solid black;
     box-sizing: border-box;
+    text-align: center;
 }
 
 .key:first-child {
@@ -37,6 +52,7 @@ body {
     box-shadow: inset -2px -3px 5px gray, inset 2px -3px 15px gray;
     border-left: none;
     border-radius: 0 0 5px 5px;
+    padding-top: 115px;
 }
 
 .black {
@@ -48,4 +64,6 @@ body {
     margin-left: -17.5px;
     position: absolute;
     vertical-align: top;
+    color: white;
+    padding-top: 55px;
 }
