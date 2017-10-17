@@ -43,6 +43,7 @@ function move() {
 
 function loadAliens(image) {
     var scale = 0.65;
+    var speedX = 40;
     for (let j = 0; j < 5; j++) {
         for (let i = 0; i < 8; i++) {
             switch (j) {
@@ -85,18 +86,26 @@ function loadAliens(image) {
             let rendItem = aliensItems[i+(j*8)];
             rendItem['sizef'] = {x: rendItem.sizes.x*scale, y: rendItem.sizes.y*scale};
             rendItem['posc'] = {x: rendItem.poss.x, y: rendItem.poss.y};
-            rendItem['posscreen'] = {x: (i*(170*scale))+((120*scale-rendItem.sizef.x)/2), y: (550-(j*120))*scale};
+            rendItem['posscreen'] = {x: (i*(170*scale))+((120*scale-rendItem.sizef.x)/2), y: (600-(j*120))*scale};
             rendItem['render'] = function() {
                 context.drawImage(this.source, this.posc.x, this.posc.y, this.sizes.x, this.sizes.y, this.posscreen.x, this.posscreen.y, this.sizef.x, this.sizef.y);
             };
             rendItem['move'] = function() {
                 if (this.posc.x==this.poss.x&&this.posc.y==this.poss.y) { this.posc.x = this.posm.x; this.posc.y = this.posm.y;
                 }else{ this.posc.x = this.poss.x; this.posc.y = this.poss.y; }
-                this.posscreen.x += 30;
-                if ((aliensItems[aliensItems.length-1].posscreen.x + aliensItems[aliensItems.length-1].sizef.x) > 1920) {
+                this.posscreen.x += speedX;
+                if ((aliensItems[aliensItems.length-1].posscreen.x + aliensItems[aliensItems.length-1].sizef.x + speedX) > canvas.width || (aliensItems[0].posscreen.x + speedX) < 0) {
                     aliensItems.forEach(function(e) {
                         e.posscreen.y += 20;
+                        e.render();
                     });
+                    aliensItems.forEach(function(e) {
+                        e.posscreen.x -= speedX;
+                    });
+                    if((aliensItems[0].posscreen.x + 2*speedX) < 0) {
+                        aliensItems[0].posscreen.x -= 2*speedX;
+                    }
+                    speedX = -speedX;
                 }
             }
         }
