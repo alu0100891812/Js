@@ -1,12 +1,19 @@
 var canvas = document.getElementById('canvas');
 var context = canvas.getContext('2d');
 var fps = 0, actualFps = 0;
+var scale = 0.65;
+var scalePlayer = 0.75;
 var aliensItems = [];
+var bulletsItem = [];
+var player;
+var isShooting = false;
+var keyMap = {};
 init();
 
 function init() {
     setInterval(render, 1000/300);
-    setInterval(move, 600);
+    setInterval(aliensMove, 600);
+    setInterval(bulletsMove, 1000/60);
     setInterval(function() {
         actualFps = fps; fps = 0;
     }, 1000);
@@ -15,6 +22,7 @@ function init() {
     image.src = "spaceInvaders.gif";
     image.addEventListener("load", function() {
         loadAliens(image);
+        loadPlayer(image);
     });
 }
 
@@ -27,6 +35,10 @@ function render() {
     aliensItems.forEach(function(e) {
         e.render();
     });
+    if(player != undefined) { player.render(); }
+    bulletsItem.forEach(function(e) {
+        e.render();
+    });
 }
 
 function clear() {
@@ -35,14 +47,19 @@ function clear() {
     context.fillRect(0,0,canvas.width, canvas.height);
 }
 
-function move() {
+function bulletsMove() {
+    bulletsItem.forEach(function(e) {
+        e.move();
+    });
+}
+
+function aliensMove() {
     aliensItems.forEach(function(e) {
         e.move();
     });
 }
 
 function loadAliens(image) {
-    var scale = 0.65;
     var speedX = 40;
     for (let j = 0; j < 5; j++) {
         for (let i = 0; i < 8; i++) {
@@ -97,17 +114,86 @@ function loadAliens(image) {
                 if ((aliensItems[aliensItems.length-1].posscreen.x + aliensItems[aliensItems.length-1].sizef.x + speedX) > canvas.width || (aliensItems[0].posscreen.x + speedX) < 0) {
                     aliensItems.forEach(function(e) {
                         e.posscreen.y += 20;
-                        e.render();
-                    });
-                    aliensItems.forEach(function(e) {
-                        e.posscreen.x -= speedX;
                     });
                     if((aliensItems[0].posscreen.x + 2*speedX) < 0) {
                         aliensItems[0].posscreen.x -= 2*speedX;
+                        aliensItems.forEach(function(e) {
+                            e.posscreen.x += speedX;
+                        });
+                    }else{
+                        aliensItems.forEach(function(e) {
+                            e.posscreen.x -= speedX;
+                        });
                     }
                     speedX = -speedX;
                 }
             }
         }
     }
+}
+
+function loadObstacles() {
+
+}
+
+function loadPlayer(image) {
+    player = {source: image,
+              bulletsps: 1,
+              posc: {x: 150, y: 638},
+              posscreen: {x: 960, y: 1000},
+              sizes: {x: 73, y: 52},
+              sizef: {x: 73*scalePlayer, y: 52*scalePlayer},
+              render: function() {
+                  context.drawImage(this.source, this.posc.x, this.posc.y, this.sizes.x, this.sizes.y, this.posscreen.x, this.posscreen.y, this.sizef.x, this.sizef.y);
+              }
+    };
+    document.addEventListener("keydown", function(ev) {
+        keyMap[ev.keyCode] = ev.type == 'keydown';
+    });
+    document.addEventListener("keyup", function(ev) {
+        keyMap[ev.keyCode] = ev.type == 'keydown';
+    });
+    setInterval(function() {
+        if(keyMap[37]){
+            if(player.posscreen.x > 10) {
+                player.posscreen.x -= 5;
+            }
+        }else if(keyMap[39]){
+            if(player.posscreen.x + player.sizef.x < 1910) {
+                player.posscreen.x += 5;
+            }
+        }
+        if(keyMap[38]) {
+            if(!isShooting) {
+                fire();
+            }
+        }else if(keyMap[32]) {
+            if(!isShooting) {
+                fire();
+            }
+        }
+        function fire() {
+            bulletsItem.push({posscreen: {x: player.posscreen.x + player.sizef.x/2 -2, y: player.posscreen.y - player.sizef.y/2},
+                              render: function() {
+                                  context.fillStyle = "white";
+                                  context.fillRect(this.posscreen.x, this.posscreen.y, 5, 20);
+                              },
+                              move: function() {
+                                  this.posscreen.y -= 10;
+                                  let index = bulletsItem.indexOf(this);
+                                  if(this.posscreen.y <= aliensItems[0].posscreen.y && this.posscreen.x >= aliensItems[0].posscreen.x && this.posscreen.x <= (aliensItems[7].posscreen.x + aliensItems[7].sizef.x)) {
+                                      aliensItems.some(function(e, i) {
+                                          if(bulletsItem[index].posscreen.x >= e.posscreen.x && bulletsItem[index].posscreen.x <= e.posscreen.x + e.sizef.x) {
+                                              aliensItems.splice(i, 1);
+                                              return true;
+                                          }
+                                      });
+                                      bulletsItem.splice(bulletsItem.indexOf(this), 1);
+                                  }
+                              }
+            });
+            isShooting = true;
+            setTimeout(function() { isShooting = false; }, 1000/player.bulletsps);
+        }
+    }, 1000/60);
 }
