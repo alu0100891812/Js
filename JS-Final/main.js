@@ -101,31 +101,37 @@ function loadAliens(image) {
                     break;
             }
             let rendItem = aliensItems[i+(j*8)];
+            rendItem['dead'] = false;
             rendItem['sizef'] = {x: rendItem.sizes.x*scale, y: rendItem.sizes.y*scale};
             rendItem['posc'] = {x: rendItem.poss.x, y: rendItem.poss.y};
             rendItem['posscreen'] = {x: (i*(170*scale))+((120*scale-rendItem.sizef.x)/2), y: (600-(j*120))*scale};
             rendItem['render'] = function() {
-                context.drawImage(this.source, this.posc.x, this.posc.y, this.sizes.x, this.sizes.y, this.posscreen.x, this.posscreen.y, this.sizef.x, this.sizef.y);
+                if(!this.dead) { context.drawImage(this.source, this.posc.x, this.posc.y, this.sizes.x, this.sizes.y, this.posscreen.x, this.posscreen.y, this.sizef.x, this.sizef.y); }
             };
             rendItem['move'] = function() {
-                if (this.posc.x==this.poss.x&&this.posc.y==this.poss.y) { this.posc.x = this.posm.x; this.posc.y = this.posm.y;
-                }else{ this.posc.x = this.poss.x; this.posc.y = this.poss.y; }
-                this.posscreen.x += speedX;
-                if ((aliensItems[aliensItems.length-1].posscreen.x + aliensItems[aliensItems.length-1].sizef.x + speedX) > canvas.width || (aliensItems[0].posscreen.x + speedX) < 0) {
-                    aliensItems.forEach(function(e) {
-                        e.posscreen.y += 20;
-                    });
-                    if((aliensItems[0].posscreen.x + 2*speedX) < 0) {
-                        aliensItems[0].posscreen.x -= 2*speedX;
-                        aliensItems.forEach(function(e) {
-                            e.posscreen.x += speedX;
-                        });
+                if(!this.dead) {
+                    if (this.posc.x==this.poss.x&&this.posc.y==this.poss.y) {
+                        this.posc.x = this.posm.x; this.posc.y = this.posm.y;
                     }else{
-                        aliensItems.forEach(function(e) {
-                            e.posscreen.x -= speedX;
-                        });
+                        this.posc.x = this.poss.x; this.posc.y = this.poss.y;
                     }
-                    speedX = -speedX;
+                    this.posscreen.x += speedX;
+                    if ((aliensItems[aliensItems.length-1].posscreen.x + aliensItems[aliensItems.length-1].sizef.x + speedX) > canvas.width || (aliensItems[0].posscreen.x + speedX) < 0) {
+                        aliensItems.forEach(function(e) {
+                            e.posscreen.y += 20;
+                        });
+                        if((aliensItems[0].posscreen.x + 2*speedX) < 0) {
+                            aliensItems[0].posscreen.x -= 2*speedX;
+                            aliensItems.forEach(function(e) {
+                                e.posscreen.x += speedX;
+                            });
+                        }else{
+                            aliensItems.forEach(function(e) {
+                                e.posscreen.x -= speedX;
+                            });
+                        }
+                        speedX = -speedX;
+                    }
                 }
             }
         }
@@ -183,12 +189,12 @@ function loadPlayer(image) {
                                   let index = bulletsItem.indexOf(this);
                                   if(this.posscreen.y <= aliensItems[0].posscreen.y && this.posscreen.x >= aliensItems[0].posscreen.x && this.posscreen.x <= (aliensItems[7].posscreen.x + aliensItems[7].sizef.x)) {
                                       aliensItems.some(function(e, i) {
-                                          if(bulletsItem[index].posscreen.x >= e.posscreen.x && bulletsItem[index].posscreen.x <= e.posscreen.x + e.sizef.x) {
-                                              aliensItems.splice(i, 1);
+                                          if(bulletsItem[index].posscreen.x >= e.posscreen.x && bulletsItem[index].posscreen.x <= e.posscreen.x + e.sizef.x + (50*scale)) {
+                                              e.dead = true;
+                                              bulletsItem.splice(bulletsItem.indexOf(this), 1);
                                               return true;
                                           }
                                       });
-                                      bulletsItem.splice(bulletsItem.indexOf(this), 1);
                                   }
                               }
             });
