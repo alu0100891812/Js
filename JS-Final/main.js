@@ -4,6 +4,7 @@ var fps = 0, actualFps = 0;
 var scale = 0.65;
 var scalePlayer = 0.75;
 var aliensItems = [];
+var aliensBullets = [];
 var bulletsItem = [];
 var player;
 var isShooting = false;
@@ -102,37 +103,44 @@ function loadAliens(image) {
             }
             let rendItem = aliensItems[i+(j*8)];
             rendItem['dead'] = false;
+            rendItem['boom'] = true;
             rendItem['sizef'] = {x: rendItem.sizes.x*scale, y: rendItem.sizes.y*scale};
             rendItem['posc'] = {x: rendItem.poss.x, y: rendItem.poss.y};
             rendItem['posscreen'] = {x: (i*(170*scale))+((120*scale-rendItem.sizef.x)/2), y: (600-(j*120))*scale};
             rendItem['render'] = function() {
-                if(!this.dead) { context.drawImage(this.source, this.posc.x, this.posc.y, this.sizes.x, this.sizes.y, this.posscreen.x, this.posscreen.y, this.sizef.x, this.sizef.y); }
+                if(!this.dead) {
+                    context.drawImage(this.source, this.posc.x, this.posc.y, this.sizes.x, this.sizes.y, this.posscreen.x, this.posscreen.y, this.sizef.x, this.sizef.y);
+                }else if(this.boom){
+                    context.drawImage(this.source, 359, 632, 96, 58, this.posscreen.x, this.posscreen.y, this.sizef.x, this.sizef.y);
+                }
             };
             rendItem['move'] = function() {
-                if(!this.dead) {
-                    if (this.posc.x==this.poss.x&&this.posc.y==this.poss.y) {
-                        this.posc.x = this.posm.x; this.posc.y = this.posm.y;
-                    }else{
-                        this.posc.x = this.poss.x; this.posc.y = this.poss.y;
-                    }
-                    this.posscreen.x += speedX;
-                    if ((aliensItems[aliensItems.length-1].posscreen.x + aliensItems[aliensItems.length-1].sizef.x + speedX) > canvas.width || (aliensItems[0].posscreen.x + speedX) < 0) {
-                        aliensItems.forEach(function(e) {
-                            e.posscreen.y += 20;
-                        });
-                        if((aliensItems[0].posscreen.x + 2*speedX) < 0) {
-                            aliensItems[0].posscreen.x -= 2*speedX;
-                            aliensItems.forEach(function(e) {
-                                e.posscreen.x += speedX;
-                            });
-                        }else{
-                            aliensItems.forEach(function(e) {
-                                e.posscreen.x -= speedX;
-                            });
-                        }
-                        speedX = -speedX;
-                    }
+                if (this.posc.x==this.poss.x&&this.posc.y==this.poss.y) {
+                    this.posc.x = this.posm.x; this.posc.y = this.posm.y;
+                }else{
+                    this.posc.x = this.poss.x; this.posc.y = this.poss.y;
                 }
+                this.posscreen.x += speedX;
+                if ((aliensItems[aliensItems.length-1].posscreen.x + aliensItems[aliensItems.length-1].sizef.x + speedX) > canvas.width || (aliensItems[0].posscreen.x + speedX) < 0) {
+                    aliensItems.forEach(function(e) {
+                        e.posscreen.y += 20;
+                    });
+                    if((aliensItems[0].posscreen.x + 2*speedX) < 0) {
+                        aliensItems[0].posscreen.x -= 2*speedX;
+                        aliensItems.forEach(function(e) {
+                            e.posscreen.x += speedX;
+                        });
+                    }else{
+                        aliensItems.forEach(function(e) {
+                            e.posscreen.x -= speedX;
+                        });
+                    }
+                    speedX = -speedX;
+                }
+            }
+            rendItem['kill'] = function() {
+                this.dead = true;
+                setTimeout(function() { this.boom = false; }.bind(this), 250);
             }
         }
     }
@@ -179,18 +187,21 @@ function loadPlayer(image) {
             }
         }
         function fire() {
-            bulletsItem.push({posscreen: {x: player.posscreen.x + player.sizef.x/2 -2, y: player.posscreen.y - player.sizef.y/2},
+            bulletsItem.push({posscreen: {x: player.posscreen.x + player.sizef.x/2 -2, y: player.posscreen.y - player.sizef.y/2 - 20},
                               render: function() {
                                   context.fillStyle = "white";
                                   context.fillRect(this.posscreen.x, this.posscreen.y, 5, 20);
                               },
                               move: function() {
+                                  if(this.posscreen.y < 0) {
+                                      bulletsItem.splice(bulletsItem.indexOf(this), 1);
+                                  }
                                   this.posscreen.y -= 10;
                                   let index = bulletsItem.indexOf(this);
-                                  if(this.posscreen.y <= aliensItems[0].posscreen.y && this.posscreen.x >= aliensItems[0].posscreen.x && this.posscreen.x <= (aliensItems[7].posscreen.x + aliensItems[7].sizef.x)) {
+                                  if(this.posscreen.y <= aliensItems[0].posscreen.y + aliensItems[0].sizef.y && this.posscreen.y >= aliensItems[39].posscreen.y && this.posscreen.x >= aliensItems[0].posscreen.x && this.posscreen.x <= (aliensItems[7].posscreen.x + aliensItems[7].sizef.x)) {
                                       aliensItems.some(function(e, i) {
-                                          if(bulletsItem[index].posscreen.x >= e.posscreen.x && bulletsItem[index].posscreen.x <= e.posscreen.x + e.sizef.x + (50*scale)) {
-                                              e.dead = true;
+                                          if(!e.dead && bulletsItem[index].posscreen.x >= e.posscreen.x && bulletsItem[index].posscreen.x <= e.posscreen.x + e.sizef.x && bulletsItem[index].posscreen.y >= e.posscreen.y && bulletsItem[index].posscreen.y <= e.posscreen.y + e.sizef.y) {
+                                              e.kill();
                                               bulletsItem.splice(bulletsItem.indexOf(this), 1);
                                               return true;
                                           }
@@ -202,4 +213,10 @@ function loadPlayer(image) {
             setTimeout(function() { isShooting = false; }, 1000/player.bulletsps);
         }
     }, 1000/60);
+}
+
+function loadHud() {
+    for (var i = 0; i < 3; i++) {
+        context.drawImage(this.source, this.posc.x, this.posc.y, this.sizes.x, this.sizes.y, this.posscreen.x, this.posscreen.y, this.sizef.x, this.sizef.y);
+    }
 }
