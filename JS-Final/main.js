@@ -286,7 +286,9 @@ function loadPlayer(image) {
                       context.textAlign = "center";
                       context.font = "80px Arial";
                       context.fillStyle = "white";
-                      context.fillText("Game Over", canvas.width/2, canvas.height/2);
+                      context.fillText("Game Over", canvas.width/2, canvas.height/2 - 50);
+                      context.font = "60px Arial";
+                      context.fillText("Score: " + player.score, canvas.width/2, canvas.height/2 + 50);
                       setTimeout(init, 3000);
                   }
               }
@@ -332,6 +334,12 @@ function loadPlayer(image) {
                                       }
                                       this.posscreen.y -= 10;
                                       let index = bulletsItem.indexOf(this);
+                                      obstaclesItems.some(function(e) {
+                                          if(this.posscreen.x > e.posscreen.x - 2.5 && this.posscreen.x < e.posscreen.x + e.sizef.x + 2.5 && this.posscreen.y < e.posscreen.y + e.sizef.y) {
+                                              bulletsItem.splice(bulletsItem.indexOf(this), 1);
+                                              return true;
+                                          }
+                                      }.bind(this));
                                       if(this.posscreen.y <= aliensItems[0].posscreen.y + aliensItems[0].sizef.y && this.posscreen.y >= aliensItems[39].posscreen.y && this.posscreen.x >= aliensItems[0].posscreen.x && this.posscreen.x <= (aliensItems[7].posscreen.x + aliensItems[7].sizef.x)) {
                                           aliensItems.some(function(e, i) {
                                               if(!e.dead && bulletsItem[index].posscreen.x >= e.posscreen.x && bulletsItem[index].posscreen.x <= e.posscreen.x + e.sizef.x && bulletsItem[index].posscreen.y >= e.posscreen.y && bulletsItem[index].posscreen.y <= e.posscreen.y + e.sizef.y) {
@@ -350,7 +358,9 @@ function loadPlayer(image) {
                                                       context.textAlign = "center";
                                                       context.font = "80px Arial";
                                                       context.fillStyle = "white";
-                                                      context.fillText("Winner!!!", canvas.width/2, canvas.height/2);
+                                                      context.fillText("Winner!!", canvas.width/2, canvas.height/2 - 50);
+                                                      context.font = "60px Arial";
+                                                      context.fillText("Score: " + player.score, canvas.width/2, canvas.height/2 + 50);
                                                       setTimeout(init, 3000);
                                                   }
                                                   player.score += e.score;
