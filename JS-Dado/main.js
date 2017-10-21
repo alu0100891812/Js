@@ -4,19 +4,11 @@ var showing = false;
 function lanzar() {
   var numero = Math.random();
   var dado = document.getElementById("dado");
-
-  if(numero<(1/6)){
-      numero = 1;
-  }else if(numero<(2/6)){
-      numero = 2;
-  }else if(numero<(3/6)){
-      numero = 3;
-  }else if(numero<(4/6)){
-      numero = 4;
-  }else if(numero<(5/6)){
-      numero = 5;
-  }else if(numero<1){
-      numero = 6;
+  for(var i=1; i<7; i++) {
+      if(numero<(i/6)) {
+          numero = i;
+          break;
+      }
   }
   estadistica[numero-1]++;
   dado.style.backgroundImage = 'url("dice' + numero + '.png")';
